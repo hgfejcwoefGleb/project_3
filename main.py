@@ -5,8 +5,15 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import random
 from typing import Optional
+from starlette.middleware.sessions import SessionMiddleware
+import secrets
 
 app = FastAPI()
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=secrets.token_hex(32),
+    session_cookie="session_cookie"
+)
 
 # Настройка шаблонов
 templates = Jinja2Templates(directory="templates")
