@@ -28,9 +28,10 @@ def guess_number():
                                    message=message, 
                                    secret=secret, 
                                    attempts=attempts)
-
+    with open("test.txt") as file:
+        message = file.readlines()
     return render_template_string(TEMPLATE, 
-                               message="Угадай число от 1 до 100!", 
+                               message=message, 
                                secret=secret_number, 
                                attempts=attempts_left)
 
