@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Угадай число</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .game-container { 
+            display: inline-block;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input { 
+            margin: 10px 0; 
+            padding: 8px; 
+            width: 100px; 
+        }
+        .btn { 
+            padding: 8px 15px; 
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .admin-info { color: blue; }
+    </style>
+</head>
+<body>
+    {% if is_admin %}
+    <p class="admin-info">Вы вошли как администратор</p>
+    {% endif %}
+    <div class="game-container">
+        <h1>{{ message }}</h1>
+        {% if not game_over %}
+        <p>Попыток осталось: {{ attempts }}</p>
+        <form method="POST" action="/guess">
+            <input type="number" name="guess" min="1" max="100" required>
+            <button type="submit" class="btn">Проверить</button>
+        </form>
+        {% else %}
+        <a href="/game"><button class="btn">Новая игра</button></a>
+        {% endif %}
+    </div>
+    <p><a href="/logout">Выйти</a></p>
+</body>
+</html>

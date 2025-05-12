@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Выбор входа</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .btn { 
+            padding: 10px 20px; 
+            margin: 10px; 
+            font-size: 16px; 
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .btn:hover { background-color: #45a049; }
+    </style>
+</head>
+<body>
+    <h2>Выберите тип входа:</h2>
+    <form method="POST" action="/login">
+        <button type="submit" name="guest" value="guest" class="btn">Войти как гость</button>
+        <button type="submit" name="admin" value="admin" class="btn">Войти как админ</button>
+    </form>
+</body>
+</html>

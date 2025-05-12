@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вход для администратора</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .login-form { 
+            display: inline-block;
+            text-align: left;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input { 
+            margin: 10px 0; 
+            padding: 8px; 
+            width: 200px; 
+        }
+        .btn { 
+            padding: 8px 15px; 
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h2>Вход для администратора</h2>
+    <div class="login-form">
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="POST" action="/admin_login">
+            <div>
+                <label for="username">Логин:</label><br>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div>
+                <label for="password">Пароль:</label><br>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn">Войти</button>
+        </form>
+    </div>
+    <p><a href="/">Вернуться</a></p>
+</body>
+</html>
