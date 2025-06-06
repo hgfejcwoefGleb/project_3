@@ -7,6 +7,7 @@ import random
 from typing import Optional
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
+from utils import read_questions, generate_question_html
 
 app = FastAPI()
 app.add_middleware(
@@ -38,7 +39,11 @@ def get_current_user(request: Request):
 # Главная страница с выбором типа входа
 @app.get("/", response_class=HTMLResponse)
 async def login_choice(request: Request):
-    return templates.TemplateResponse("login_choice.html", {"request": request})
+    return templates.TemplateResponse("sign_in.html", {"request": request})
+
+@app.get("/login", response_class=HTMLResponse)
+async def login_choice(request: Request):
+    return templates.TemplateResponse("sign_in.html", {"request": request})
 
 # Обработка выбора типа входа
 @app.post("/login")
@@ -50,6 +55,7 @@ async def handle_login_choice(request: Request, guest: Optional[str] = Form(None
         return RedirectResponse(url="/admin_login", status_code=303)
     return RedirectResponse(url="/", status_code=303)
 
+#тут
 # Страница входа для админа
 @app.get("/admin_login", response_class=HTMLResponse)
 async def admin_login_page(request: Request):
@@ -57,14 +63,44 @@ async def admin_login_page(request: Request):
 
 # Обработка входа админа
 @app.post("/admin_login")
-async def handle_admin_login(request: Request, username: str = Form(...), password: str = Form(...)):
-    user = USERS.get(username)
+async def handle_admin_login(request: Request, login: str = Form(...), password: str = Form(...)):
+    user = USERS.get(login)
     if not user or user["password"] != password:
         return templates.TemplateResponse("admin_login.html", 
                                         {"request": request, "error": "Неверные учетные данные!"})
     
-    request.session["user"] = {"username": username, "role": user["role"]}
-    return RedirectResponse(url="/game", status_code=303)
+    request.session["user"] = {"login": login, "role": user["role"]}
+    return RedirectResponse(url="/admin_main_window", status_code=303)
+
+#Страница главного окна админа
+@app.get("/admin_main_window", response_class=HTMLResponse)
+async def admin_main_window_page(request: Request):
+    return templates.TemplateResponse("admin_main_window.html", {"request": request})
+
+#Страница вопросов
+@app.get("/questions", response_class=HTMLResponse)
+async def questions_page(request: Request):
+    questions = read_questions('questions.txt')
+    questions_html = generate_question_html(questions)
+
+    with open('templates/questions.html', 'r', encoding='utf-8') as file:
+        template = file.read()
+
+    final_html = template.replace("{{questions}}", questions_html)
+
+    with open('templates/questions.html', 'w', encoding='utf-8') as file:
+        file.write(final_html)
+    return templates.TemplateResponse("questions.html", {"request": request})
+
+#Страница рейтинга
+@app.get("/progress", response_class=HTMLResponse)
+async def progress_page(request: Request):
+    return templates.TemplateResponse("progress.html", {"request": request})
+
+#Страница с правилами
+@app.get("/rules", response_class=HTMLResponse)
+async def rules_page(request: Request):
+    return templates.TemplateResponse("rules.html", {"request": request})
 
 # Игра "Угадай число"
 @app.get("/game", response_class=HTMLResponse)
