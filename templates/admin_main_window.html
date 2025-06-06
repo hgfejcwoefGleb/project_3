@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Угадай число</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #2b2d42;
+            --light-color: #f8f9fa;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .admin-panel {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .admin-header h1 {
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        
+        .admin-header p {
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .admin-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 24px;
+        }
+        
+        .menu-link {
+            display: block;
+            text-decoration: none;
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            color: inherit;
+        }
+        
+        .menu-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: var(--accent-color);
+        }
+        
+        .menu-link i {
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+        }
+        
+        .menu-link h3 {
+            margin-bottom: 8px;
+            color: var(--dark-color);
+        }
+        
+        .menu-link p {
+            color: #6c757d;
+            font-size: 14px;
+        }
+        
+        .btn-logout {
+            display: block;
+            width: calc(100% - 48px);
+            margin: 0 24px 24px;
+            padding: 12px;
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-align: center;
+            text-decoration: none;
+        }
+        
+        .btn-logout:hover {
+            background-color: #d31666;
+        }
+        
+        @media (max-width: 600px) {
+            .admin-menu {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-panel">
+        <div class="admin-header">
+            <h1>Административная панель</h1>
+            <p>Управление игрой "Угадай число"</p>
+        </div>
+        
+        <div class="admin-menu">
+            <a href="/game" class="menu-link">
+                <i class="fas fa-play-circle"></i>
+                <h3>Начать игру</h3>
+                <p>Запустить новую игровую сессию</p>
+            </a>
+            
+            <a href="/questions" class="menu-link">
+                <i class="fas fa-list-ol"></i>
+                <h3>Список вопросов</h3>
+                <p>Управление вопросами и настройками</p>
+            </a>
+            
+            <a href="/progress" class="menu-link">
+                <i class="fas fa-chart-line"></i>
+                <h3>Посмотреть прогресс</h3>
+                <p>Статистика и аналитика игроков</p>
+            </a>
+            
+            <a href="/rules" class="menu-link">
+                <i class="fas fa-book"></i>
+                <h3>Правила</h3>
+                <p>Редактирование правил игры</p>
+            </a>
+        </div>
+        
+        <a href="/logout" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Выйти
+        </a>
+    </div>
+</body>
+</html>

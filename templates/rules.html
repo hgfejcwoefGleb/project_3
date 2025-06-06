@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Правила игры | Угадай число</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #2b2d42;
+            --light-color: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            line-height: 1.6;
+        }
+        
+        .rules-container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .rules-header {
+            position: relative;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            transition: opacity 0.3s;
+        }
+        
+        .back-button:hover {
+            opacity: 0.8;
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        .rules-header h1 {
+            font-weight: 500;
+            margin: 0 auto;
+            max-width: 70%;
+        }
+        
+        .rules-content {
+            padding: 32px;
+        }
+        
+        .rules-list {
+            margin-bottom: 32px;
+        }
+        
+        .rules-list ol {
+            padding-left: 24px;
+        }
+        
+        .rules-list li {
+            margin-bottom: 12px;
+            padding-left: 8px;
+        }
+        
+        .rules-list li::marker {
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            border: none;
+            margin-top: 16px;
+        }
+        
+        .btn-back:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-back i {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            .rules-header h1 {
+                max-width: 60%;
+                font-size: 1.5rem;
+            }
+            
+            .rules-content {
+                padding: 24px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="rules-container">
+        <div class="rules-header">
+            <h1>Правила игры</h1>
+        </div>
+        
+        <div class="rules-content">
+            <div class="rules-list">
+                <ol>
+                    <li>Угадай случайное число от 1 до 100 за минимальное количество попыток</li>
+                    <li>После каждой попытки ты получишь подсказку "Больше" или "Меньше"</li>
+                    <li>У тебя есть 10 попыток, чтобы отгадать число</li>
+                    <li>Игра автоматически завершится при правильном ответе или когда закончатся попытки</li>
+                    <li>Администратор может изменять диапазон чисел и количество попыток</li>
+                </ol>
+            </div>
+            
+            <a href="/admin" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Вернуться в меню
+            </a>
+        </div>
+    </div>
+</body>
+</html>
