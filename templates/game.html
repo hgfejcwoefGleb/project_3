@@ -1,47 +1,63 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Угадай число</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        .game-container { 
-            display: inline-block;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        input { 
-            margin: 10px 0; 
-            padding: 8px; 
-            width: 100px; 
-        }
-        .btn { 
-            padding: 8px 15px; 
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .admin-info { color: blue; }
-    </style>
-</head>
-<body>
-    {% if is_admin %}
-    <p class="admin-info">Вы вошли как администратор</p>
-    {% endif %}
-    <div class="game-container">
-        <h1>{{ message }}</h1>
-        {% if not game_over %}
-        <p>Попыток осталось: {{ attempts }}</p>
-        <form method="POST" action="/guess">
-            <input type="number" name="guess" min="1" max="100" required>
-            <button type="submit" class="btn">Проверить</button>
-        </form>
-        {% else %}
-        <a href="/game"><button class="btn">Новая игра</button></a>
-        {% endif %}
+{% extends "base.html" %}
+{% block content %}
+<div class="game-container">
+    <h2>Вопрос:</h2>
+    <p class="question-text">{{ question_text }}</p>
+
+    <form method="post" action="/submit" class="answers-form">
+        {% for answer in answers %}
+        <div class="answer-option">
+            <label>
+                <input type="radio" name="selected_answer" value="{{ answer[0]|lower }}" required>
+                {{ answer }}
+            </label>
+        </div>
+        {% endfor %}
+
+        <div class="buttons">
+            <button type="submit">Ответить</button>
+            <button formaction="/skip" formmethod="post">Пропустить</button>
+            <button formaction="/change_question" formmethod="post">Сменить вопрос</button>
+            <button formaction="/end_game" formmethod="post" class="end-button">Завершить игру</button>
+        </div>
+    </form>
+
+    <div class="helper-links">
+        <button onclick="toggleHint()">Подсказка</button>
+        <button onclick="toggleRules()">Правила</button>
     </div>
-    <p><a href="/logout">Выйти</a></p>
-</body>
-</html>
+
+    <!-- Подсказка -->
+    <div id="hint-popup" style="display:none;">
+        <div class="popup-content">
+            <p>{{ hint_text }}</p>
+            <button onclick="toggleHint()">Закрыть</button>
+        </div>
+    </div>
+
+    <!-- Правила -->
+    <div id="rules-popup" style="display:none;">
+        <div class="popup-content">
+            <h3>Правила игры:</h3>
+            <ol>
+                <li>Прочти вопрос и выбери один из трёх вариантов ответа.</li>
+                <li>Используй подсказку или пропуск, если не знаешь.</li>
+                <li>Попробуй ответить правильно на как можно больше вопросов.</li>
+            </ol>
+            <button onclick="toggleRules()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleHint() {
+        const el = document.getElementById('hint-popup');
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function toggleRules() {
+        const el = document.getElementById('rules-popup');
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
+{% endblock %}
