@@ -1,50 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Вход для администратора</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        .login-form { 
-            display: inline-block;
-            text-align: left;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        input { 
-            margin: 10px 0; 
-            padding: 8px; 
-            width: 200px; 
-        }
-        .btn { 
-            padding: 8px 15px; 
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .error { color: red; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Вход администратора</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .wrapper {
+      text-align: center;
+    }
+
+    .error-message {
+    color: #ff4444;
+    background-color: #ffebee;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ffcdd2;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  
+    .title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+
+    .login-box {
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 400px;
+      margin: auto;
+    }
+
+    .login-box label {
+      display: block;
+      text-align: left;
+      margin: 10px 0 5px;
+      font-size: 16px;
+    }
+
+    .login-box input[type="text"],
+    .login-box input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #aaa;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .btn-login {
+      background-color: #d9f2dd;
+      border: 1px solid #4CAF50;
+      color: #333;
+    }
+
+    .btn-login:hover {
+      background-color: #c8e6c9;
+    }
+
+    .btn-back {
+      background-color: #e1efff;
+      border: 1px solid #3399ff;
+      color: #000;
+    }
+
+    .btn-back:hover {
+      background-color: #d0e7ff;
+    }
+  </style>
 </head>
 <body>
-    <h2>Вход для администратора</h2>
-    <div class="login-form">
-        {% if error %}
-        <p class="error">{{ error }}</p>
-        {% endif %}
-        <form method="POST" action="/admin_login">
-            <div>
-                <label for="username">Логин:</label><br>
-                <input type="text" id="username" name="username" required>
-            </div>
-            <div>
-                <label for="password">Пароль:</label><br>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn">Войти</button>
-        </form>
+  <div class="wrapper">
+    <div class="title">Вход админа</div>
+    <div class="login-box">
+    {% if error %}
+    <div class="error-message" style="color: red; margin-bottom: 15px;">
+      {{ error }}
     </div>
-    <p><a href="/">Вернуться</a></p>
+    {% endif %}
+    <form method="POST" action="/admin_login">
+        <label for="login">Логин</label>
+        <input type="text" id="login" name="login" placeholder="Введите логин" required>
+
+        <label for="password">Пароль</label>
+        <input type="password" id="password" name="password" placeholder="Введите пароль" required>
+
+        <button type="submit" class="btn btn-login">Войти</button>
+    </form>
+    <form method="GET" action="/login">
+        <button type="submit" class="btn btn-back">Вернуться</button>
+    </form>
+    </div>
+  </div>
 </body>
 </html>
