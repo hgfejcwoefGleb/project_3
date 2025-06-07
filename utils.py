@@ -1,31 +1,26 @@
 def read_questions(filename):
+    with open(filename, 'r', encoding='utf-8') as file:
+        content = file.read()
+
+    blocks = content.strip().split("\n\n")
     questions = []
-    with open(filename, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
 
-    current_question = ""
-    options = []
-    correct_answer = ""
-
-    for line in lines:
-        text = line.strip()
-        if not text:
+    for block in blocks:
+        lines = block.strip().splitlines()
+        if not lines or len(lines) < 4:
             continue
 
-        if text.lower().startswith("правильный ответ:"):
-            correct_answer = text.split(":", 1)[1].strip()
-            questions.append({
-                "question": current_question.strip(),
-                "options": options,
-                "correct": correct_answer
-            })
-            current_question = ""
-            options = []
-            correct_answer = ""
-        elif any(text.lower().startswith(prefix) for prefix in ["a)", "б)", "в)", "а)", "b)", "c)"]):
-            options.append(text.split(")", 1)[1].strip())
-        else:
-            current_question += " " + text if current_question else text
+        question_text = lines[0]
+        options = [line for line in lines[1:] if line.lower().startswith(('a)', 'б)', 'в)', 'а)', 'b)', 'c)'))]
+        correct_line = [line for line in lines if "правильный ответ" in line.lower()]
+        if not correct_line or not options:
+            continue
+
+        questions.append({
+            "question": question_text,
+            "options": options,
+            "correct": correct_line[0].split(":", 1)[1].strip()
+        })
 
     return questions
 
