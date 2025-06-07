@@ -102,54 +102,59 @@ async def progress_page(request: Request):
 async def rules_page(request: Request):
     return templates.TemplateResponse("rules.html", {"request": request})
 
-# Игра "Угадай число"
+#Показываем страницу с вопросом
 @app.get("/game", response_class=HTMLResponse)
-async def game_page(request: Request):
-    user = request.session.get("user")
-    if not user:
-        return RedirectResponse(url="/", status_code=303)
-    
-    if "secret" not in request.session:
-        request.session["secret"] = random.randint(1, 100)
-        request.session["attempts"] = 10
-    
+def show_game(request: Request):
+    user = get_current_user(request)
+    questions = read_questions("questions.txt")
+
+    if "game_index" not in request.session:
+        request.session["game_index"] = 0
+        request.session["score"] = 0
+
+    idx = request.session["game_index"]
+    if idx >= len(questions):
+        return RedirectResponse("/result", status_code=303)
+
+    current = questions[idx]
+
     return templates.TemplateResponse("game.html", {
         "request": request,
-        "message": "Угадай число от 1 до 100!",
-        "attempts": request.session["attempts"],
-        "is_admin": user.get("role") == "admin"
+        "question_text": current,
+        "answers": ["a", "b", "c"],
+        "hint_text": "Подсказка: Внимательно читай формулировку вопроса"
     })
 
-# Обработка попытки угадать число
-@app.post("/guess")
-async def handle_guess(request: Request, guess: int = Form(...)):
-    user = request.session.get("user")
-    if not user:
-        return RedirectResponse(url="/", status_code=303)
-    
-    secret = request.session["secret"]
-    request.session["attempts"] -= 1
-    attempts = request.session["attempts"]
-    
-    if guess == secret:
-        message = f"🎉 Победа! Это число {secret}!"
-        request.session.pop("secret", None)
-        request.session.pop("attempts", None)
-    elif attempts == 0:
-        message = f"💥 Проигрыш! Число было: {secret}."
-        request.session.pop("secret", None)
-        request.session.pop("attempts", None)
-    elif guess < secret:
-        message = "⬆️ Больше!"
-    else:
-        message = "⬇️ Меньше!"
-    
-    return templates.TemplateResponse("game.html", {
+#Обработка ответа
+@app.post("/submit")
+async def submit_answer(request: Request, selected_answer: str = Form(...)):
+    questions = read_questions("questions.txt")
+    idx = request.session["game_index"]
+    current = questions[idx]
+
+    correct_raw = current.split("Правильный ответ:")[-1].strip().lower()
+    correct_letter = correct_raw[0]  # "a" из "a) НОБЧ"
+
+    if selected_answer.lower() == correct_letter:
+        request.session["score"] += 1
+
+    request.session["game_index"] += 1
+    return RedirectResponse("/game", status_code=303)
+
+#Завершение игры
+@app.post("/end_game")
+def end_game(request: Request):
+    return RedirectResponse("/result", status_code=303)
+
+#Страница результата
+@app.get("/result", response_class=HTMLResponse)
+def show_result(request: Request):
+    score = request.session.get("score", 0)
+    total = len(read_questions("questions.txt"))
+    return templates.TemplateResponse("result_offline.html", {
         "request": request,
-        "message": message,
-        "attempts": attempts,
-        "is_admin": user.get("role") == "admin",
-        "game_over": guess == secret or attempts == 0
+        "score": score,
+        "total": total
     })
 
 # Выход из системы
