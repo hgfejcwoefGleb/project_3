@@ -16,13 +16,15 @@ def read_questions(filename):
         if not correct_line or not options:
             continue
 
+        correct = correct_line[0].split(":", 1)[1].strip()
         questions.append({
             "question": question_text,
             "options": options,
-            "correct": correct_line[0].split(":", 1)[1].strip()
+            "correct": correct
         })
 
     return questions
+
 
 def generate_question_html(questions):
     html_items = []

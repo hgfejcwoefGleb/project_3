@@ -117,30 +117,36 @@ def show_game(request: Request):
         return RedirectResponse("/result", status_code=303)
 
     current = questions[idx]
+
+    # 💡 ОТЛАДКА (можно удалить позже)
+    print("==== DEBUG ====")
+    print("Вопрос:", current["question"])
+    print("Варианты:", current["options"])
+    print("Ответ:", current["correct"])
+    print("================")
+
     return templates.TemplateResponse("game.html", {
         "request": request,
         "question_text": current["question"],
         "answers": current["options"],
-        "hint_text": "Внимательно прочитай формулировку вопроса"
+        "hint_text": "Подсказка: подумай логически :)"
     })
-
-
 
 #Обработка ответа
 @app.post("/submit")
 async def submit_answer(request: Request, selected_answer: str = Form(...)):
     questions = read_questions("questions.txt")
-    idx = request.session["game_index"]
+    idx = request.session.get("game_index", 0)
     current = questions[idx]
 
-    correct_raw = current.split("Правильный ответ:")[-1].strip().lower()
-    correct_letter = correct_raw[0]  # "a" из "a) НОБЧ"
+    correct_letter = current["correct"].split(")")[0].strip().lower()
 
     if selected_answer.lower() == correct_letter:
         request.session["score"] += 1
 
     request.session["game_index"] += 1
     return RedirectResponse("/game", status_code=303)
+
 
 #Завершение игры
 @app.post("/end_game")
