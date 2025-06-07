@@ -117,13 +117,17 @@ def show_game(request: Request):
         return RedirectResponse("/result", status_code=303)
 
     current = questions[idx]
+    lines = current.splitlines()
+    question_text = lines[0]
+    answers = [line for line in lines[1:] if line.lower().startswith(('a)', 'b)', 'c)', 'а)', 'б)', 'в)'))]
 
     return templates.TemplateResponse("game.html", {
         "request": request,
-        "question_text": current,
-        "answers": ["a", "b", "c"],
+        "question_text": question_text,
+        "answers": answers,
         "hint_text": "Подсказка: Внимательно читай формулировку вопроса"
     })
+
 
 #Обработка ответа
 @app.post("/submit")
