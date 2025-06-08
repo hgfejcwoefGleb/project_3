@@ -162,7 +162,11 @@ async def submit_answer(request: Request, selected_answer: str = Form(...)):
 
     request.session["game_index"] += 1
     return RedirectResponse("/game", status_code=303)
-
+#Пропуск вопроса
+@app.post("/skip")
+def skip_question(request: Request):
+    request.session["game_index"] = request.session.get("game_index", 0) + 1
+    return RedirectResponse("/game", status_code=303)
 
 #Завершение игры
 @app.post("/end_game")
