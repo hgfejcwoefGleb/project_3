@@ -26,9 +26,14 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px;">
         <button type="button" onclick="toggleHint()" style="background-color:#ffcc99; border:none; padding:10px 16px; border-radius:8px; cursor:pointer;">Подсказка</button>
         <button type="button" onclick="toggleRules()" style="background-color:#ffcc99; border:none; padding:10px 16px; border-radius:8px; cursor:pointer;">Правила</button>
-        <button type="submit" formaction="/skip" formmethod="post" style="background-color:#ffcc99; border:none; padding:10px 16px; border-radius:8px; cursor:pointer;">Пропустить</button>
         <button type="submit" style="background-color:#ffcc99; border:none; padding:10px 16px; border-radius:8px; cursor:pointer;">Ответить</button>
-      </div>
+    </div>
+</form>
+
+<!-- Отдельная форма для пропуска -->
+<form method="post" action="/skip" style="display:flex; justify-content:flex-end; margin-top:12px;">
+    <button type="submit" style="background-color:#ffcc99; border:none; padding:10px 16px; border-radius:8px; cursor:pointer;">Пропустить</button>
+</form>
     </form>
   </div>
 </div>
