@@ -1,47 +1,184 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Угадай число</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        .game-container { 
-            display: inline-block;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        input { 
-            margin: 10px 0; 
-            padding: 8px; 
-            width: 100px; 
-        }
-        .btn { 
-            padding: 8px 15px; 
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 3px;
-            cursor: pointer;
-        }
-        .admin-info { color: blue; }
-    </style>
-</head>
-<body>
-    {% if is_admin %}
-    <p class="admin-info">Вы вошли как администратор</p>
-    {% endif %}
-    <div class="game-container">
-        <h1>{{ message }}</h1>
-        {% if not game_over %}
-        <p>Попыток осталось: {{ attempts }}</p>
-        <form method="POST" action="/guess">
-            <input type="number" name="guess" min="1" max="100" required>
-            <button type="submit" class="btn">Проверить</button>
-        </form>
-        {% else %}
-        <a href="/game"><button class="btn">Новая игра</button></a>
-        {% endif %}
-    </div>
-    <p><a href="/logout">Выйти</a></p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Вопрос | Quiz{% endblock %}
+{% block content %}
+<div class="game-container" style="max-width:700px; margin:40px auto; background:white; border-radius:16px; box-shadow:0 10px 30px rgba(0,0,0,0.1); overflow:hidden; position:relative;">
+  <!-- Header with End button -->
+  <div style="background:linear-gradient(135deg,var(--primary-color),var(--secondary-color)); color:white; padding:24px; text-align:center; position:relative;">
+    <h1 style="margin:0;">Викторина</h1>
+    <form action="/end_game" method="post" style="position:absolute; top:16px; right:16px;">
+      <button type="submit" style="background:none; border:none; color:white; font-size:1rem; cursor:pointer; transition:opacity .3s;">Завершить</button>
+    </form>
+  </div>
+
+  <div style="padding:32px;">
+    <!-- Question text -->
+    <p style="font-size:1.2rem; margin-bottom:24px; color:var(--dark-color);">
+      {{ question_text }}
+    </p>
+
+    <!-- Answer options and action buttons -->
+    <form method="post" action="/submit" style="display:flex; flex-direction:column; gap:16px;">
+      {% for answer in answers %}
+      <label style="display:flex; align-items:center;">
+        <input
+          type="radio"
+          name="selected_answer"
+          value="{{ answer[0]|lower }}"
+          required
+          style="margin-right:12px;"
+        >
+        {{ answer }}
+      </label>
+      {% endfor %}
+
+      <!-- Unified action-button row -->
+      <div
+        style="
+          display:flex;
+          justify-content:space-between;
+          align-items:center;
+          margin-top:24px;
+        "
+      >
+        <!-- Слева: кнопка Пропустить -->
+        <button
+          type="submit"
+          formaction="/skip"
+          formmethod="post"
+          style="
+            background-color:#ffcc99;
+            border:none;
+            padding:10px 16px;
+            border-radius:8px;
+            cursor:pointer;
+          "
+        >
+          Пропустить
+        </button>
+
+        <!-- Подсказка и Правила по центру (с промежутком) -->
+        <div style="display:flex; gap:16px;">
+          <button
+            type="button"
+            onclick="toggleHint()"
+            style="
+              background-color:#ffcc99;
+              border:none;
+              padding:10px 16px;
+              border-radius:8px;
+              cursor:pointer;
+            "
+          >
+            Подсказка
+          </button>
+          <button
+            type="button"
+            onclick="toggleRules()"
+            style="
+              background-color:#ffcc99;
+              border:none;
+              padding:10px 16px;
+              border-radius:8px;
+              cursor:pointer;
+            "
+          >
+            Правила
+          </button>
+        </div>
+
+        <!-- Справа: кнопка Ответить -->
+        <button
+          type="submit"
+          style="
+            background-color:#ffcc99;
+            border:none;
+            padding:10px 16px;
+            border-radius:8px;
+            cursor:pointer;
+          "
+        >
+          Ответить
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Hint popup -->
+<div
+  id="hint-popup"
+  style="
+    display:none;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+  "
+>
+  <div style="background:white; padding:24px; border-radius:12px; text-align:center; max-width:90%; width:400px;">
+    <p>{{ hint_text }}</p>
+    <button
+      onclick="toggleHint()"
+      style="
+        margin-top:16px;
+        padding:8px 16px;
+        background:var(--primary-color);
+        color:white;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+      "
+    >
+      Закрыть
+    </button>
+  </div>
+</div>
+
+<!-- Rules popup -->
+<div
+  id="rules-popup"
+  style="
+    display:none;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.5);
+    justify-content:center;
+    align-items:center;
+  "
+>
+  <div style="background:white; padding:24px; border-radius:12px; text-align:center; max-width:90%; width:400px;">
+    <h3>Правила игры</h3>
+    <ol style="text-align:left; margin-top:16px;">
+      <li>Прочтите вопрос и выберите правильный вариант.</li>
+      <li>Можно использовать подсказку, пропустить или сменить вопрос.</li>
+      <li>Наберите как можно больше правильных ответов.</li>
+    </ol>
+    <button
+      onclick="toggleRules()"
+      style="
+        margin-top:16px;
+        padding:8px 16px;
+        background:var(--primary-color);
+        color:white;
+        border:none;
+        border-radius:8px;
+        cursor:pointer;
+      "
+    >
+      Закрыть
+    </button>
+  </div>
+</div>
+
+<script>
+  function toggleHint() {
+    const el = document.getElementById('hint-popup');
+    el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+  }
+  function toggleRules() {
+    const el = document.getElementById('rules-popup');
+    el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+  }
+</script>
+{% endblock %}

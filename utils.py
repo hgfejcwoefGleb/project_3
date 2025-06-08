@@ -1,14 +1,41 @@
 def read_questions(filename):
     with open(filename, 'r', encoding='utf-8') as file:
-        return [line.strip() for line in file if line.strip()]
+        content = file.read()
+
+    blocks = content.strip().split("\n\n")
+    questions = []
+
+    for block in blocks:
+        lines = block.strip().splitlines()
+        if not lines or len(lines) < 4:
+            continue
+
+        question_text = lines[0]
+        options = [line for line in lines[1:] if line.lower().startswith(('a)', 'б)', 'в)', 'а)', 'b)', 'c)'))]
+        correct_line = [line for line in lines if "правильный ответ" in line.lower()]
+        if not correct_line or not options:
+            continue
+
+        correct = correct_line[0].split(":", 1)[1].strip()
+        questions.append({
+            "question": question_text,
+            "options": options,
+            "correct": correct
+        })
+
+    return questions
+
 
 def generate_question_html(questions):
     html_items = []
     for idx, question in enumerate(questions, start=1):
+        options_html = "<ul>" + "".join(f"<li>{opt}</li>" for opt in question["options"]) + "</ul>"
         item = f"""
         <div class="question-item">
             <div class="question-text">
-                <strong>Вопрос #{idx}:</strong> {question}
+                <strong>Вопрос #{idx}:</strong> {question["question"]}
+                {options_html}
+                <div><em>Правильный ответ:</em> {question["correct"]}</div>
             </div>
             <div class="question-actions">
                 <i class="fas fa-edit action-icon" title="Редактировать"></i>
@@ -18,6 +45,7 @@ def generate_question_html(questions):
         """
         html_items.append(item)
     return "\n".join(html_items)
+
 
 def save_question_to_file(question: str, options: list, correct_answer: str, filename: str = "tasks.txt"):
     """
@@ -76,3 +104,4 @@ def read_ratings(file_path: str = "progress.txt"):
     
     # Сортируем по убыванию очков
     return sorted(ratings, key=lambda x: x["score"], reverse=True)
+
