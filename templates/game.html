@@ -1,13 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Вопрос | Quiz{% endblock %}
 {% block content %}
-<div class="game-container" style="max-width: 700px; margin: 40px auto; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;">
-    <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 24px; text-align: center;">
+<div class="game-container" style="max-width: 700px; margin: 40px auto; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; position: relative;">
+    <!-- Заголовок с кнопкой Завершить -->
+    <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 24px; text-align: center; position: relative;">
         <h1 style="margin: 0;">Викторина</h1>
+        <form action="/end_game" method="post" style="position: absolute; top: 16px; right: 16px;">
+            <button type="submit" style="background: none; border: none; color: white; font-size: 1rem; cursor: pointer;
+                transition: opacity 0.3s;">Завершить</button>
+        </form>
     </div>
     <div style="padding: 32px;">
-        <p style="font-size: 1.2rem; margin-bottom: 24px;">{{ question_text }}</p>
+        <!-- Вопрос -->
+        <p style="font-size: 1.2rem; margin-bottom: 24px; color: var(--dark-color);">{{ question_text }}</p>
 
+        <!-- Варианты ответа -->
         <form method="post" action="/submit" style="display: flex; flex-direction: column; gap: 16px;">
             {% for answer in answers %}
             <label style="display: flex; align-items: center;">
@@ -16,39 +23,35 @@
             </label>
             {% endfor %}
 
-            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px;">
-                <button type="submit" style="flex: 1 1 45%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px;">Ответить</button>
-                <button formaction="/skip" formmethod="post" style="flex: 1 1 45%; padding: 12px;">Пропустить</button>
-                <button formaction="/change_question" formmethod="post" style="flex: 1 1 45%; padding: 12px;">Сменить вопрос</button>
-                <button formaction="/end_game" formmethod="post" style="flex: 1 1 45%; padding: 12px; background-color: crimson; color: white;">Завершить</button>
+            <!-- Кнопки действий: Подсказка, Правила, Пропустить, Ответить -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 12px;">
+                <button type="button" onclick="toggleHint()" style="background-color: #ffcc99; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer;">Подсказка</button>
+                <button type="button" onclick="toggleRules()" style="background-color: #ffcc99; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer;">Правила</button>
+                <button type="submit" formaction="/skip" formmethod="post" style="background-color: #ffcc99; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer;">Пропустить</button>
+                <button type="submit" style="background-color: #ffcc99; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer;">Ответить</button>
             </div>
         </form>
-
-        <div style="margin-top: 16px; text-align: center;">
-            <button onclick="toggleHint()" style="background: none; border: none; color: var(--accent-color); margin-right: 16px;">Подсказка</button>
-            <button onclick="toggleRules()" style="background: none; border: none; color: var(--accent-color);">Правила</button>
-        </div>
     </div>
 </div>
 
 <!-- Подсказка -->
 <div id="hint-popup" style="display:none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
-    <div style="background: white; padding: 24px; border-radius: 12px; text-align: center;">
+    <div style="background: white; padding: 24px; border-radius: 12px; text-align: center; max-width: 90%; width: 400px;">
         <p>{{ hint_text }}</p>
-        <button onclick="toggleHint()" style="margin-top: 16px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 8px;">Закрыть</button>
+        <button onclick="toggleHint()" style="margin-top: 16px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer;">Закрыть</button>
     </div>
 </div>
 
 <!-- Правила -->
 <div id="rules-popup" style="display:none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
-    <div style="background: white; padding: 24px; border-radius: 12px; text-align: center;">
+    <div style="background: white; padding: 24px; border-radius: 12px; text-align: center; max-width: 90%; width: 400px;">
         <h3>Правила игры</h3>
-        <ol style="text-align: left;">
+        <ol style="text-align: left; margin-top: 16px;">
             <li>Прочтите вопрос и выберите правильный вариант.</li>
             <li>Можно использовать подсказку, пропустить или сменить вопрос.</li>
             <li>Постарайтесь набрать максимум баллов.</li>
         </ol>
-        <button onclick="toggleRules()" style="margin-top: 16px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 8px;">Закрыть</button>
+        <button onclick="toggleRules()" style="margin-top: 16px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer;">Закрыть</button>
     </div>
 </div>
 
