@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавление вопроса | Админ-панель</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #2b2d42;
+            --light-color: #f8f9fa;
+            --success-color: #4cc9f0;
+            --danger-color: #f72585;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .add-question-container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .add-question-header {
+            position: relative;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 24px;
+            text-align: center;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+            transition: opacity 0.3s;
+        }
+        
+        .back-button:hover {
+            opacity: 0.8;
+        }
+        
+        .back-button i {
+            margin-right: 8px;
+        }
+        
+        .add-question-header h1 {
+            font-weight: 500;
+            margin: 0 auto;
+            max-width: 70%;
+        }
+        
+        .add-question-form {
+            padding: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+        
+        .answer_options {
+            margin-top: 16px;
+        }
+        
+        .answer_option {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .answer_option input {
+            flex-grow: 1;
+            margin-right: 8px;
+        }
+        
+        .btn-add-option {
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-add-option:hover {
+            background-color: #dee2e6;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            border: none;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f0f2f5;
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            .add-question-header h1 {
+                max-width: 60%;
+                font-size: 1.5rem;
+            }
+            
+            .add-question-form {
+                padding: 24px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="add-question-container">
+        <div class="add-question-header">
+            <a href="/questions" class="back-button">
+                <i class="fas fa-arrow-left"></i> Назад
+            </a>
+            <h1>Добавление вопроса</h1>
+        </div>
+        
+        <form class="add-question-form" action="/add-question" method="POST">
+            <div class="form-group">
+                <label for="question-text">Введите вопрос:</label>
+                <textarea id="question-text" name="question" class="form-control" rows="3" required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="correct-answer">Введите правильный ответ:</label>
+                <input type="text" id="correct-answer" name="correct_answer" class="form-control" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Введите другие варианты ответов:</label>
+                <div class="answer_options" id="answer_options_container">
+                    <div class="answer_option">
+                        <input type="text" name="options" class="form-control" placeholder="Вариант ответа" required>
+                    </div>
+                    <div class="answer_option">
+                        <input type="text" name="options" class="form-control" placeholder="Вариант ответа" required>
+                    </div>
+                </div>
+                <button type="button" class="btn-add-option" id="add-option-btn">
+                    <i class="fas fa-plus"></i> Добавить вариант
+                </button>
+            </div>
+            
+            <div class="form-group">
+                <label for="answer-time">Введите оптимальное время ответа (секунды):</label>
+                <input type="number" id="answer-time" name="answer_time" class="form-control" min="5" max="120" value="30" required>
+            </div>
+            
+            <div class="form-actions">
+                <button type="reset" class="btn btn-secondary">
+                    <i class="fas fa-undo"></i> Очистить
+                </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Добавить вопрос
+                    </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('add-option-btn').addEventListener('click', function() {
+            const container = document.getElementById('answer_options_container');
+            const newOption = document.createElement('div');
+            newOption.className = 'answer_option';
+            newOption.innerHTML = `
+                <input type="text" name="options[]" class="form-control" placeholder="Вариант ответа" required>
+                <button type="button" class="btn-add-option remove-option-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(newOption);
+            
+            // Добавляем обработчик для новой кнопки удаления
+            newOption.querySelector('.remove-option-btn').addEventListener('click', function() {
+                if (document.querySelectorAll('.answer_option').length > 2) {
+                    container.removeChild(newOption);
+                } else {
+                    alert('Должно быть хотя бы 2 варианта ответа');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
