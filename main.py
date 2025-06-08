@@ -8,6 +8,11 @@ from typing import Optional
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
 from utils import read_questions, generate_question_html
+import logging
+logging.basicConfig(level=logging.DEBUG)
+from fastapi import FastAPI, Request
+from fastapi.responses import PlainTextResponse
+
 
 app = FastAPI()
 app.add_middleware(
@@ -28,6 +33,14 @@ class LoginData(BaseModel):
 USERS = {
     "admin": {"password": "admin123", "role": "admin"}
 }
+#Перехват всех ошибок
+@app.middleware("http")
+async def catch_exceptions(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        logging.exception("Unhandled exception:")
+        return PlainTextResponse("Internal error:\n" + str(e), status_code=500)
 
 # Функция для проверки аутентификации
 def get_current_user(request: Request):
@@ -107,6 +120,9 @@ async def rules_page(request: Request):
 def show_game(request: Request):
     user = get_current_user(request)
     questions = read_questions("questions.txt")
+    logging.debug(f"Загружено {len(questions)} вопросов.")
+    if questions:
+        logging.debug("Пример блока вопросов: %s", questions[0])
 
     if "game_index" not in request.session:
         request.session["game_index"] = 0
