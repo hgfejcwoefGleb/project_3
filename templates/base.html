@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Quiz Game{% endblock %}</title>
+    <!-- Подключение шрифтов и иконок -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Общие стили: переменные, сброс, layout */
+        :root { --primary-color: #4361ee; --secondary-color: #3f37c9; --accent-color: #4895ef;
+                --dark-color: #2b2d42; --light-color: #f8f9fa; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+        body { background-color: var(--light-color); color: var(--dark-color);
+               min-height: 100vh; display: flex; flex-direction: column; }
+        header { background: var(--primary-color); color: white; padding: 16px; text-align: center; }
+        main { flex: 1; padding: 24px; }
+        footer { background: var(--secondary-color); color: white; text-align: center; padding: 12px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{% block header %}Quiz Game{% endblock %}</h1>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 Quiz Game</p>
+    </footer>
+</body>
+</html>
