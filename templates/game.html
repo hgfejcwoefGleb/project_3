@@ -1,63 +1,65 @@
 {% extends "base.html" %}
+{% block title %}Вопрос | Quiz{% endblock %}
 {% block content %}
-<div class="game-container">
-    <h2>Вопрос:</h2>
-    <p class="question-text">{{ question_text }}</p>
+<div class="game-container" style="max-width: 700px; margin: 40px auto; background: white; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden;">
+    <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 24px; text-align: center;">
+        <h1 style="margin: 0;">Викторина</h1>
+    </div>
+    <div style="padding: 32px;">
+        <p style="font-size: 1.2rem; margin-bottom: 24px;">{{ question_text }}</p>
 
-    <form method="post" action="/submit" class="answers-form">
-        {% for answer in answers %}
-        <div class="answer-option">
-            <label>
-                <input type="radio" name="selected_answer" value="{{ answer[0]|lower }}" required>
+        <form method="post" action="/submit" style="display: flex; flex-direction: column; gap: 16px;">
+            {% for answer in answers %}
+            <label style="display: flex; align-items: center;">
+                <input type="radio" name="selected_answer" value="{{ answer[0]|lower }}" required style="margin-right: 12px;">
                 {{ answer }}
             </label>
-        </div>
-        {% endfor %}
+            {% endfor %}
 
-        <div class="buttons">
-            <button type="submit">Ответить</button>
-            <button formaction="/skip" formmethod="post">Пропустить</button>
-            <button formaction="/change_question" formmethod="post">Сменить вопрос</button>
-            <button formaction="/end_game" formmethod="post" class="end-button">Завершить игру</button>
-        </div>
-    </form>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px;">
+                <button type="submit" style="flex: 1 1 45%; padding: 12px; background-color: var(--primary-color); color: white; border: none; border-radius: 8px;">Ответить</button>
+                <button formaction="/skip" formmethod="post" style="flex: 1 1 45%; padding: 12px;">Пропустить</button>
+                <button formaction="/change_question" formmethod="post" style="flex: 1 1 45%; padding: 12px;">Сменить вопрос</button>
+                <button formaction="/end_game" formmethod="post" style="flex: 1 1 45%; padding: 12px; background-color: crimson; color: white;">Завершить</button>
+            </div>
+        </form>
 
-    <div class="helper-links">
-        <button onclick="toggleHint()">Подсказка</button>
-        <button onclick="toggleRules()">Правила</button>
-    </div>
-
-    <!-- Подсказка -->
-    <div id="hint-popup" style="display:none;">
-        <div class="popup-content">
-            <p>{{ hint_text }}</p>
-            <button onclick="toggleHint()">Закрыть</button>
+        <div style="margin-top: 16px; text-align: center;">
+            <button onclick="toggleHint()" style="background: none; border: none; color: var(--accent-color); margin-right: 16px;">Подсказка</button>
+            <button onclick="toggleRules()" style="background: none; border: none; color: var(--accent-color);">Правила</button>
         </div>
     </div>
+</div>
 
-    <!-- Правила -->
-    <div id="rules-popup" style="display:none;">
-        <div class="popup-content">
-            <h3>Правила игры:</h3>
-            <ol>
-                <li>Прочти вопрос и выбери один из трёх вариантов ответа.</li>
-                <li>Используй подсказку или пропуск, если не знаешь.</li>
-                <li>Попробуй ответить правильно на как можно больше вопросов.</li>
-            </ol>
-            <button onclick="toggleRules()">Закрыть</button>
-        </div>
+<!-- Подсказка -->
+<div id="hint-popup" style="display:none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+    <div style="background: white; padding: 24px; border-radius: 12px; text-align: center;">
+        <p>{{ hint_text }}</p>
+        <button onclick="toggleHint()" style="margin-top: 16px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 8px;">Закрыть</button>
+    </div>
+</div>
+
+<!-- Правила -->
+<div id="rules-popup" style="display:none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); justify-content: center; align-items: center;">
+    <div style="background: white; padding: 24px; border-radius: 12px; text-align: center;">
+        <h3>Правила игры</h3>
+        <ol style="text-align: left;">
+            <li>Прочтите вопрос и выберите правильный вариант.</li>
+            <li>Можно использовать подсказку, пропустить или сменить вопрос.</li>
+            <li>Постарайтесь набрать максимум баллов.</li>
+        </ol>
+        <button onclick="toggleRules()" style="margin-top: 16px; padding: 8px 16px; background: var(--primary-color); color: white; border: none; border-radius: 8px;">Закрыть</button>
     </div>
 </div>
 
 <script>
     function toggleHint() {
         const el = document.getElementById('hint-popup');
-        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
     }
-
     function toggleRules() {
         const el = document.getElementById('rules-popup');
-        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
     }
 </script>
 {% endblock %}

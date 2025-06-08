@@ -1,7 +1,11 @@
-{% extends "base.html" %}
-{% block title %}Игра | Квиз{% endblock %}
-{% block content %}
-<div class="game-container">
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Quiz Game{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --primary-color: #4361ee;
@@ -10,162 +14,51 @@
             --dark-color: #2b2d42;
             --light-color: #f8f9fa;
         }
-        .game-container {
-            width: 90%;
-            max-width: 700px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin: 40px auto;
-            overflow: hidden;
-        }
-        .game-header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 24px;
-            text-align: center;
-            position: relative;
-        }
-        .game-header h1 {
+
+        * {
             margin: 0;
-            font-weight: 500;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
         }
-        .game-content {
-            padding: 32px;
-        }
-        .question-text {
-            font-size: 1.2rem;
-            margin-bottom: 24px;
+
+        body {
+            background-color: var(--light-color);
             color: var(--dark-color);
-        }
-        .answers-form {
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            gap: 16px;
         }
-        .answer-option input {
-            margin-right: 12px;
-        }
-        .buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-top: 24px;
-        }
-        .buttons button {
-            flex: 1 1 45%;
-            padding: 12px 20px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .buttons button:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-        .helper-links {
-            display: flex;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 16px;
-        }
-        .helper-links button {
-            background: none;
-            border: none;
-            color: var(--accent-color);
-            font-size: 1rem;
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-        .helper-links button:hover {
-            opacity: 0.7;
-        }
-        /* Popup styles */
-        #hint-popup, #rules-popup {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-        }
-        .popup-content {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 90%;
-            width: 400px;
-            text-align: center;
-        }
-        .popup-content button {
-            margin-top: 16px;
-            padding: 8px 16px;
+
+        header {
             background: var(--primary-color);
             color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            padding: 16px;
+            text-align: center;
         }
-        .popup-content button:hover {
+
+        main {
+            flex: 1;
+            padding: 24px;
+        }
+
+        footer {
             background: var(--secondary-color);
+            color: white;
+            text-align: center;
+            padding: 12px;
         }
     </style>
-    <div class="game-header">
-        <h1>Викторина</h1>
-    </div>
-    <div class="game-content">
-        <p class="question-text">{{ question_text }}</p>
-        <form method="post" action="/submit" class="answers-form">
-            {% for answer in answers %}
-            <label class="answer-option">
-                <input type="radio" name="selected_answer" value="{{ answer[0]|lower }}" required>
-                {{ answer }}
-            </label>
-            {% endfor %}
-            <div class="buttons">
-                <button type="submit">Ответить</button>
-                <button formaction="/skip" formmethod="post">Пропустить</button>
-                <button formaction="/change_question" formmethod="post">Сменить вопрос</button>
-                <button formaction="/end_game" formmethod="post">Завершить</button>
-            </div>
-        </form>
-        <div class="helper-links">
-            <button onclick="toggleHint()">Подсказка</button>
-            <button onclick="toggleRules()">Правила</button>
-        </div>
-    </div>
-    <!-- Подсказка -->
-    <div id="hint-popup" class="popup">
-        <div class="popup-content">
-            <p>{{ hint_text }}</p>
-            <button onclick="toggleHint()">Закрыть</button>
-        </div>
-    </div>
-    <!-- Правила -->
-    <div id="rules-popup" class="popup">
-        <div class="popup-content">
-            <h3>Правила игры</h3>
-            <ol>
-                <li>Прочтите вопрос и выберите один из вариантов.</li>
-                <li>Можно пропустить или сменить вопрос.</li>
-                <li>Наберите как можно больше баллов.</li>
-            </ol>
-            <button onclick="toggleRules()">Закрыть</button>
-        </div>
-    </div>
-</div>
-<script>
-    function toggleHint() {
-        const p = document.getElementById('hint-popup');
-        p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
-    }
-    function toggleRules() {
-        const p = document.getElementById('rules-popup');
-        p.style.display = p.style.display === 'flex' ? 'none' : 'flex';
-    }
-</script>
-{% endblock %}
+</head>
+<body>
+    <header>
+        <h1>{% block header %}Quiz Game{% endblock %}</h1>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; 2025 Quiz Game</p>
+    </footer>
+</body>
+</html>
