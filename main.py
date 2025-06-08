@@ -7,7 +7,7 @@ import random
 from typing import Optional
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
-from utils import read_questions, generate_question_html
+from utils import *
 
 app = FastAPI()
 app.add_middleware(
@@ -94,14 +94,48 @@ async def questions_page(request: Request):
 
 #Страница рейтинга
 @app.get("/progress", response_class=HTMLResponse)
-async def progress_page(request: Request):
-    return templates.TemplateResponse("progress.html", {"request": request})
+async def show_rating(request: Request):
+    # Получаем данные рейтинга
+    ratings = read_ratings()
+    
+    # Добавляем информацию о медалях (первые 3 места)
+    for i, player in enumerate(ratings[:3], 1):
+        player["medal"] = ["gold", "silver", "bronze"][i-1]
+    
+    return templates.TemplateResponse(
+        "progress.html",
+        {
+            "request": request,
+            "ratings": ratings
+        }
+    )
 
 #Страница с правилами
 @app.get("/rules", response_class=HTMLResponse)
 async def rules_page(request: Request):
     return templates.TemplateResponse("rules.html", {"request": request})
 
+#Страница добавления вопроса
+@app.get("/add-question", response_class=HTMLResponse)
+async def add_question_page(request: Request):
+    return templates.TemplateResponse("add-question.html", {"request": request})
+
+@app.post("/add-question", response_class=HTMLResponse)
+async def save_question(
+    request: Request,
+    question: str = Form(...),
+    correct_answer: str = Form(...),
+    options: list = Form(...),  # ← Исправлено: options, а не answer_options_container
+    answer_time: int = Form(...)
+):
+    # Сохраняем вопрос в файл
+    question_number = save_question_to_file(question, options, correct_answer)
+
+    # Возвращаем страницу с подтверждением
+    return templates.TemplateResponse("add-question.html", {
+        "request": request,
+        "message": f"Вопрос #{question_number} успешно добавлен!"
+    })
 # Игра "Угадай число"
 @app.get("/game", response_class=HTMLResponse)
 async def game_page(request: Request):

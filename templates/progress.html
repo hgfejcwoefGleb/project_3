@@ -161,12 +161,11 @@
 <body>
     <div class="rating-container">
         <div class="rating-header">
-            <a href="/admin" class="back-button">
+            <a href="/admin_main_window" class="back-button">
                 <i class="fas fa-arrow-left"></i> Назад
             </a>
             <h1>Рейтинг игроков</h1>
         </div>
-        
         <div class="rating-content">
             <table class="rating-table">
                 <thead>
@@ -177,48 +176,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- 1 место -->
+                    {% for player in ratings %}
                     <tr>
-                        <td class="player-rank"><span class="medal gold"></span>1</td>
-                        <td class="player-name">Алексей Петров</td>
-                        <td class="player-score">9850</td>
+                        <td class="player-rank">
+                            {% if loop.index <= 3 %}
+                                <span class="medal {{ player.medal }}"></span>
+                            {% endif %}
+                            {{ loop.index }}
+                        </td>
+                        <td class="player-name">{{ player.name }}</td>
+                        <td class="player-score">{{ player.score }}</td>
                     </tr>
-                    <!-- 2 место -->
-                    <tr>
-                        <td class="player-rank"><span class="medal silver"></span>2</td>
-                        <td class="player-name">Мария Иванова</td>
-                        <td class="player-score">8720</td>
-                    </tr>
-                    <!-- 3 место -->
-                    <tr>
-                        <td class="player-rank"><span class="medal bronze"></span>3</td>
-                        <td class="player-name">Дмитрий Сидоров</td>
-                        <td class="player-score">7650</td>
-                    </tr>
-                    <!-- 4 место -->
-                    <tr>
-                        <td class="player-rank">4</td>
-                        <td class="player-name">Ольга Кузнецова</td>
-                        <td class="player-score">7210</td>
-                    </tr>
-                    <!-- 5 место -->
-                    <tr>
-                        <td class="player-rank">5</td>
-                        <td class="player-name">Иван Смирнов</td>
-                        <td class="player-score">6890</td>
-                    </tr>
-                    <!-- 6 место -->
-                    <tr>
-                        <td class="player-rank">6</td>
-                        <td class="player-name">Екатерина Васильева</td>
-                        <td class="player-score">6540</td>
-                    </tr>
-                    <!-- 7 место -->
-                    <tr>
-                        <td class="player-rank">7</td>
-                        <td class="player-name">Андрей Попов</td>
-                        <td class="player-score">6210</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
