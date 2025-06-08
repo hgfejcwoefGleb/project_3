@@ -1,57 +1,69 @@
-def read_questions(filename):
-    with open(filename, 'r', encoding='utf-8') as file:
-        content = file.read()
+import re
 
-    blocks = content.strip().split("\n\n")
+def read_questions(file_path: str) -> list:
+    """Чтение вопросов из файла нового формата"""
     questions = []
+    current_question = None
 
-    for block in blocks:
-        lines = block.strip().splitlines()
-        if not lines or len(lines) < 4:
-            continue
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            line = line.strip()
 
-        question_text = lines[0]
-        options = [line for line in lines[1:] if line.lower().startswith(('a)', 'б)', 'в)', 'а)', 'b)', 'c)'))]
-        correct_line = [line for line in lines if "правильный ответ" in line.lower()]
-        if not correct_line or not options:
-            continue
+            # Пропускаем пустые строки
+            if not line:
+                continue
 
-        correct = correct_line[0].split(":", 1)[1].strip()
-        questions.append({
-            "question": question_text,
-            "options": options,
-            "correct": correct
-        })
+            # Проверяем, начинается ли строка с номера вопроса: "1.", "2." и т.д.
+            question_match = re.match(r'^(\d+)\.\s*(.+)$', line)
+            if question_match:
+                if current_question:
+                    questions.append(current_question)
+
+                # Начинаем новый вопрос
+                current_question = {
+                    "text": question_match.group(2),
+                    "options": [],
+                    "correct_answer": None
+                }
+
+            # Варианты ответа: a), b), c)
+            elif line.startswith(("a)", "b)", "c)")):
+                if current_question is not None:
+                    current_question["options"].append(line)
+
+            # Правильный ответ
+            elif line.startswith("Правильный ответ:"):
+                if current_question is not None:
+                    current_question["correct_answer"] = line.split(": ", 1)[1]
+
+    # Добавляем последний вопрос
+    if current_question:
+        questions.append(current_question)
 
     return questions
 
-
-def generate_question_html(questions):
-    html_items = []
-    for idx, question in enumerate(questions, start=1):
-        options_html = "<ul>" + "".join(f"<li>{opt}</li>" for opt in question["options"]) + "</ul>"
-        item = f"""
-        <div class="question-item">
+def generate_question_html(questions: list) -> str:
+    """Генерация HTML для списка вопросов"""
+    html = []
+    for i, question in enumerate(questions, 1):
+        html.append(f"""
+        <div class="question-item" data-id="{i}">
             <div class="question-text">
-                <strong>Вопрос #{idx}:</strong> {question["question"]}
-                {options_html}
-                <div><em>Правильный ответ:</em> {question["correct"]}</div>
+                <strong>{question['text']}</strong>
+                <div class="question-answer">{question['correct_answer']}</div>
             </div>
             <div class="question-actions">
                 <i class="fas fa-edit action-icon" title="Редактировать"></i>
                 <i class="fas fa-trash action-icon" title="Удалить"></i>
             </div>
         </div>
-        """
-        html_items.append(item)
-    return "\n".join(html_items)
-
+        """)
+    return "\n".join(html)
 
 def save_question_to_file(question: str, options: list, correct_answer: str, filename: str = "tasks.txt"):
     """
     Сохраняет вопрос и варианты ответов в файл в заданном формате.
     """
-    print(options)
     question_number = 1
     with open(filename, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -67,6 +79,7 @@ def save_question_to_file(question: str, options: list, correct_answer: str, fil
     # Записываем в файл
     with open(filename, 'a', encoding='utf-8') as file:
         file.write(question_block)
+    
 
     return question_number
 

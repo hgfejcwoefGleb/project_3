@@ -87,20 +87,17 @@ async def handle_admin_login(request: Request, login: str = Form(...), password:
 async def admin_main_window_page(request: Request):
     return templates.TemplateResponse("admin_main_window.html", {"request": request})
 
-#Страница вопросов
 @app.get("/questions", response_class=HTMLResponse)
 async def questions_page(request: Request):
     questions = read_questions('questions.txt')
     questions_html = generate_question_html(questions)
-
-    with open('templates/questions.html', 'r', encoding='utf-8') as file:
-        template = file.read()
-
-    final_html = template.replace("{{questions}}", questions_html)
-
-    with open('templates/questions.html', 'w', encoding='utf-8') as file:
-        file.write(final_html)
-    return templates.TemplateResponse("questions.html", {"request": request})
+    return templates.TemplateResponse(
+        "questions.html", 
+        {
+            "request": request,
+            "questions": questions_html
+        }
+    )
 
 #Страница рейтинга
 @app.get("/progress", response_class=HTMLResponse)
@@ -141,6 +138,7 @@ async def save_question(
 ):
     # Сохраняем вопрос в файл
     question_number = save_question_to_file(question, options, correct_answer)
+    question_number = save_question_to_file(question, options, correct_answer, filename="questions.txt")
 
     # Возвращаем страницу с подтверждением
     return templates.TemplateResponse("add-question.html", {
