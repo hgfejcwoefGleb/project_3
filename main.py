@@ -117,26 +117,30 @@ async def rules_page(request: Request):
 def show_game(request: Request):
     user = get_current_user(request)
     questions = read_questions("questions.txt")
-    logging.debug(f"Загружено {len(questions)} вопросов.")
-    if questions:
-        logging.debug("Пример блока вопросов: %s", questions[0])
 
-    if "game_index" not in request.session:
+    if "question_order" not in request.session:
+        order = list(range(len(questions)))
+        random.shuffle(order)
+        request.session["question_order"] = order
         request.session["game_index"] = 0
         request.session["score"] = 0
 
+    order = request.session["question_order"]
     idx = request.session["game_index"]
-    if idx >= len(questions):
+
+    if idx >= len(order):
         return RedirectResponse("/result", status_code=303)
 
-    current = questions[idx]
+    q_idx = order[idx]
+    current = questions[q_idx]
 
     return templates.TemplateResponse("game.html", {
         "request": request,
         "question_text": current["question"],
         "answers": current["options"],
-        "hint_text": "Подсказка: подумай логически :)"
+        "hint_text": "Подсказка: подумайте логически :)"
     })
+
 
 #Обработка ответа
 @app.post("/submit")
@@ -177,10 +181,11 @@ def show_result(request: Request):
 #Перезапуск игры
 @app.get("/play_again")
 def play_again(request: Request):
-    # Сбрасываем счёт и индекс
+    request.session.pop("question_order", None)
     request.session["game_index"] = 0
     request.session["score"] = 0
     return RedirectResponse("/game", status_code=303)
+
 
 # Выход из системы
 @app.get("/logout")
