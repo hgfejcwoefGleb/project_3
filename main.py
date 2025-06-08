@@ -50,11 +50,11 @@ def get_current_user(request: Request):
 # Главная страница с выбором типа входа
 @app.get("/", response_class=HTMLResponse)
 async def login_choice(request: Request):
-    return templates.TemplateResponse("sign_in.html", {"request": request})
+    return templates.TemplateResponse("login_choice.html", {"request": request})
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_choice(request: Request):
-    return templates.TemplateResponse("sign_in.html", {"request": request})
+    return templates.TemplateResponse("login_choice.html", {"request": request})
 
 # Обработка выбора типа входа
 @app.post("/login")
