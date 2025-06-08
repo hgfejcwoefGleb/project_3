@@ -10,9 +10,7 @@ import secrets
 from utils import read_questions, generate_question_html
 import logging
 logging.basicConfig(level=logging.DEBUG)
-from fastapi import FastAPI, Request
 from fastapi.responses import PlainTextResponse
-
 
 app = FastAPI()
 app.add_middleware(
@@ -68,7 +66,6 @@ async def handle_login_choice(request: Request, guest: Optional[str] = Form(None
         return RedirectResponse(url="/admin_login", status_code=303)
     return RedirectResponse(url="/", status_code=303)
 
-#тут
 # Страница входа для админа
 @app.get("/admin_login", response_class=HTMLResponse)
 async def admin_login_page(request: Request):
@@ -134,13 +131,6 @@ def show_game(request: Request):
 
     current = questions[idx]
 
-    # 💡 ОТЛАДКА (можно удалить позже)
-    print("==== DEBUG ====")
-    print("Вопрос:", current["question"])
-    print("Варианты:", current["options"])
-    print("Ответ:", current["correct"])
-    print("================")
-
     return templates.TemplateResponse("game.html", {
         "request": request,
         "question_text": current["question"],
@@ -183,6 +173,14 @@ def show_result(request: Request):
         "score": score,
         "total": total
     })
+
+#Перезапуск игры
+@app.get("/play_again")
+def play_again(request: Request):
+    # Сбрасываем счёт и индекс
+    request.session["game_index"] = 0
+    request.session["score"] = 0
+    return RedirectResponse("/game", status_code=303)
 
 # Выход из системы
 @app.get("/logout")
