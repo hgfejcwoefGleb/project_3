@@ -42,6 +42,28 @@ def read_questions(file_path: str) -> list:
 
     return questions
 
+def read_questions_(filename):
+    questions = []
+    with open(filename, 'r', encoding='utf-8') as file:
+        lines = file.read().split('\n\n')  # Разделяем по пустым строкам
+        
+    for block in lines:
+        if not block.strip():
+            continue
+            
+        parts = block.split('\n')
+        if len(parts) < 4:  # Как минимум: вопрос, 2 варианта, правильный ответ
+            continue
+            
+        question = {
+            "text": parts[0].strip(),
+            "options": [opt.strip() for opt in parts[1:-1] if opt.strip()],
+            "correct_answer": parts[-1].replace("Правильный ответ:", "").strip()
+        }
+        questions.append(question)
+    print(questions)
+    return questions
+
 def generate_question_html(questions: list) -> str:
     """Генерация HTML для списка вопросов"""
     html = []
@@ -74,8 +96,8 @@ def save_question_to_file(question: str, options: list, correct_answer: str, fil
     # Назначаем буквы вариантам
     for idx, option in enumerate(options):
         question_block += f"{chr(97 + idx)}) {option}\n"
-
-    question_block += f"Правильный ответ: {correct_answer}\n\n"
+        last_let = chr(97 + idx)
+    question_block += f"Правильный ответ: {last_let}) {correct_answer}\n\n"
     # Записываем в файл
     with open(filename, 'a', encoding='utf-8') as file:
         file.write(question_block)

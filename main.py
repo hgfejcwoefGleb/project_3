@@ -138,6 +138,7 @@ async def save_question(
     answer_time: int = Form(...)
 ):
     # Сохраняем вопрос в файл
+    options.append(correct_answer)
     question_number = save_question_to_file(question, options, correct_answer)
     question_number = save_question_to_file(question, options, correct_answer, filename="questions.txt")
 
@@ -165,35 +166,57 @@ def show_game(request: Request):
     if idx >= len(order):
         return RedirectResponse("/result", status_code=303)
 
-    q_idx = order[idx]
+    q_idx = order[idx]  # Получаем реальный индекс вопроса из перемешанного списка
     current = questions[q_idx]
-
     return templates.TemplateResponse("game.html", {
         "request": request,
         "question_text": current["text"],
         "answers": current["options"],
-        "hint_text": "Подсказка: подумайте логически :)"
+        "hint_text": "Подсказка: подумайте логически :)",
+        "current_q_idx": q_idx  # Добавляем реальный индекс вопроса в контекст
     })
 
 
-#Обработка ответа
+# Обработка ответа
 @app.post("/submit")
 async def submit_answer(request: Request, selected_answer: str = Form(...)):
     questions = read_questions("tasks.txt")
+    order = request.session.get("question_order", [])
     idx = request.session.get("game_index", 0)
-    current = questions[idx]
-
-    correct_letter = current["correct_answer"].split(")")[0].strip().lower()
-
-    if selected_answer.lower() == correct_letter:
-        request.session["score"] += 1
-
-    request.session["game_index"] += 1
+    
+    # Проверка, что вопросы не закончились
+    if idx >= len(order):
+        return RedirectResponse("/result", status_code=303)
+    
+    q_idx = order[idx]  # Получаем реальный индекс вопроса
+    current_question = questions[q_idx]
+    
+    if selected_answer.strip().lower() == current_question["correct_answer"].strip().lower():
+        request.session["score"] = request.session.get("score", 0) + 1
+    
+    # Переход к следующему вопросу
+    request.session["game_index"] = idx + 1
+    
+    # Проверка, был ли это последний вопрос
+    if request.session["game_index"] >= len(order):
+        return RedirectResponse("/result", status_code=303)
+    
     return RedirectResponse("/game", status_code=303)
-#Пропуск вопроса
+
+# Пропуск вопроса
 @app.post("/skip")
 def skip_question(request: Request):
-    request.session["game_index"] = request.session.get("game_index", 0) + 1
+    order = request.session.get("question_order", [])
+    current_idx = request.session.get("game_index", 0)
+    
+    # Увеличиваем индекс только если вопросы еще есть
+    if current_idx < len(order) - 1:
+        request.session["game_index"] = current_idx + 1
+    
+    # Если это был последний вопрос - переходим к результатам
+    if request.session["game_index"] >= len(order) - 1:
+        return RedirectResponse("/result", status_code=303)
+    
     return RedirectResponse("/game", status_code=303)
 
 #Завершение игры

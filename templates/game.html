@@ -16,14 +16,14 @@
       {{ question_text }}
     </p>
 
-    <!-- Answer options and action buttons -->
-    <form method="post" action="/submit" style="display:flex; flex-direction:column; gap:16px;">
+    <!-- Form for answering (requires selection) -->
+    <form id="answer-form" method="post" action="/submit" style="display:flex; flex-direction:column; gap:16px;">
       {% for answer in answers %}
       <label style="display:flex; align-items:center;">
         <input
           type="radio"
           name="selected_answer"
-          value="{{ answer[0]|lower }}"
+          value="{{ answer|lower }}"
           required
           style="margin-right:12px;"
         >
@@ -40,23 +40,23 @@
           margin-top:24px;
         "
       >
-        <!-- Слева: кнопка Пропустить -->
-        <button
-          type="submit"
-          formaction="/skip"
-          formmethod="post"
-          style="
-            background-color:#ffcc99;
-            border:none;
-            padding:10px 16px;
-            border-radius:8px;
-            cursor:pointer;
-          "
-        >
-          Пропустить
-        </button>
+        <!-- Кнопка Пропустить — отдельная форма -->
+        <form id="skip-form" method="post" action="/skip" style="margin:0;">
+          <button
+            type="submit"
+            style="
+              background-color:#ffcc99;
+              border:none;
+              padding:10px 16px;
+              border-radius:8px;
+              cursor:pointer;
+            "
+          >
+            Пропустить
+          </button>
+        </form>
 
-        <!-- Подсказка и Правила по центру (с промежутком) -->
+        <!-- Подсказка и Правила по центру -->
         <div style="display:flex; gap:16px;">
           <button
             type="button"
@@ -86,9 +86,10 @@
           </button>
         </div>
 
-        <!-- Справа: кнопка Ответить -->
+        <!-- Кнопка Ответить — часть основной формы -->
         <button
           type="submit"
+          form="answer-form"
           style="
             background-color:#ffcc99;
             border:none;
@@ -178,7 +179,7 @@
   }
   function toggleRules() {
     const el = document.getElementById('rules-popup');
-    el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+    el.style.display = el.style.display === 'none' ? 'flex' ? 'none';
   }
 </script>
 {% endblock %}
