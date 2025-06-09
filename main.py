@@ -1,3 +1,4 @@
+#пропустить кнопка не работает
 from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -149,7 +150,7 @@ async def save_question(
 @app.get("/game", response_class=HTMLResponse)
 def show_game(request: Request):
     user = get_current_user(request)
-    questions = read_questions("questions.txt")
+    questions = read_questions("tasks.txt")
 
     if "question_order" not in request.session:
         order = list(range(len(questions)))
@@ -169,7 +170,7 @@ def show_game(request: Request):
 
     return templates.TemplateResponse("game.html", {
         "request": request,
-        "question_text": current["question"],
+        "question_text": current["text"],
         "answers": current["options"],
         "hint_text": "Подсказка: подумайте логически :)"
     })
@@ -178,11 +179,11 @@ def show_game(request: Request):
 #Обработка ответа
 @app.post("/submit")
 async def submit_answer(request: Request, selected_answer: str = Form(...)):
-    questions = read_questions("questions.txt")
+    questions = read_questions("tasks.txt")
     idx = request.session.get("game_index", 0)
     current = questions[idx]
 
-    correct_letter = current["correct"].split(")")[0].strip().lower()
+    correct_letter = current["correct_answer"].split(")")[0].strip().lower()
 
     if selected_answer.lower() == correct_letter:
         request.session["score"] += 1
@@ -204,7 +205,7 @@ def end_game(request: Request):
 @app.get("/result", response_class=HTMLResponse)
 def show_result(request: Request):
     score = request.session.get("score", 0)
-    total = len(read_questions("questions.txt"))
+    total = len(read_questions("tasks.txt"))
     return templates.TemplateResponse("result_offline.html", {
         "request": request,
         "score": score,
