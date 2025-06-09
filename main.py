@@ -151,6 +151,9 @@ async def save_question(
 @app.get("/game", response_class=HTMLResponse)
 def show_game(request: Request):
     user = get_current_user(request)
+    if not user:
+        # Вместо HTTPException — делаем редирект
+        return RedirectResponse(url="/login", status_code=307)
     questions = read_questions("tasks.txt")
 
     if "question_order" not in request.session:
