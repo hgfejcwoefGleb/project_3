@@ -59,9 +59,9 @@ async def login_choice(request: Request):
 
 # Обработка выбора типа входа
 @app.post("/login")
-async def handle_login_choice(request: Request, guest: Optional[str] = Form(None), admin: Optional[str] = Form(None)):
+async def handle_login_choice(request: Request, guest: Optional[str] = Form(None), admin: Optional[str] = Form(None), guest_name: str = Form(...)):
     if guest:
-        request.session["user"] = {"role": "guest"}
+        request.session["user"] = {"role": "guest", "login": guest_name}
         return RedirectResponse(url="/game", status_code=303)
     elif admin:
         return RedirectResponse(url="/admin_login", status_code=303)
@@ -164,6 +164,7 @@ def show_game(request: Request):
     idx = request.session["game_index"]
 
     if idx >= len(order):
+        add_user(request.session["user"]["login"], points=request.session["score"])
         return RedirectResponse("/result", status_code=303)
 
     q_idx = order[idx]  # Получаем реальный индекс вопроса из перемешанного списка
@@ -186,6 +187,7 @@ async def submit_answer(request: Request, selected_answer: str = Form(...)):
     
     # Проверка, что вопросы не закончились
     if idx >= len(order):
+        add_user(request.session["user"]["login"], points=request.session["score"])
         return RedirectResponse("/result", status_code=303)
     
     q_idx = order[idx]  # Получаем реальный индекс вопроса
@@ -215,6 +217,7 @@ def skip_question(request: Request):
     
     # Если это был последний вопрос - переходим к результатам
     if request.session["game_index"] >= len(order) - 1:
+        add_user(request.session["user"]["login"], points=request.session["score"])
         return RedirectResponse("/result", status_code=303)
     
     return RedirectResponse("/game", status_code=303)
@@ -222,6 +225,7 @@ def skip_question(request: Request):
 #Завершение игры
 @app.post("/end_game")
 def end_game(request: Request):
+    add_user(request.session["user"]["login"], points=request.session["score"])
     return RedirectResponse("/result", status_code=303)
 
 #Страница результата

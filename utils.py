@@ -140,3 +140,6 @@ def read_ratings(file_path: str = "progress.txt"):
     # Сортируем по убыванию очков
     return sorted(ratings, key=lambda x: x["score"], reverse=True)
 
+def add_user(login: str, points: int = 0, filename: str = "progress.txt"):
+    with open(filename, 'a') as file:
+        file.write(f"{login}:{points}\n")

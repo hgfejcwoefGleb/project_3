@@ -70,11 +70,23 @@
             cursor: pointer;
             text-decoration: none;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn:hover {
             background-color: var(--secondary-color);
             transform: translateY(-2px);
+        }
+
+        .btn-rating {
+            background-color: var(--accent-color);
+        }
+
+        .btn-rating:hover {
+            background-color: #3a7bc8;
         }
 
         @media (max-width: 500px) {
@@ -91,6 +103,7 @@
 
         <div class="btn-group">
             <a href="/play_again" class="btn"><i class="fas fa-redo"></i> Сыграть снова</a>
+            <a href="/progress" class="btn btn-rating"><i class="fas fa-trophy"></i> Посмотреть рейтинг</a>
             <a href="/" class="btn"><i class="fas fa-home"></i> На главную</a>
         </div>
     </div>
