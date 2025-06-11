@@ -59,13 +59,31 @@ async def login_choice(request: Request):
 
 # Обработка выбора типа входа
 @app.post("/login")
-async def handle_login_choice(request: Request, guest: Optional[str] = Form(None), admin: Optional[str] = Form(None), guest_name: str = Form(...)):
+async def handle_login_choice(
+    request: Request,
+    guest: Optional[str] = Form(None),
+    admin: Optional[str] = Form(None),
+    guest_name: Optional[str] = Form(None)  # ← необязательное поле
+):
+
     if guest:
+        if not guest_name:
+
+            return templates.TemplateResponse(
+                "login_choice.html",
+                {
+                    "request": request,
+                    "error": "Пожалуйста, введите имя гостя"
+                }
+            )
         request.session["user"] = {"role": "guest", "login": guest_name}
         return RedirectResponse(url="/game", status_code=303)
+
     elif admin:
         return RedirectResponse(url="/admin_login", status_code=303)
+
     return RedirectResponse(url="/", status_code=303)
+
 
 # Страница входа для админа
 @app.get("/admin_login", response_class=HTMLResponse)
