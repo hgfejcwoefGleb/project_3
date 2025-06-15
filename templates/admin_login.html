@@ -1,120 +1,201 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Вход администратора</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f0f2f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход администратора | КриптоIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    .wrapper {
-      text-align: center;
-    }
+    <style>
+        :root {
+            --primary-color: #4361ee; 
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --dark-color: #2b2d42;
+            --light-color: #f8f9fa;
+            --danger-color: #f72585;
+        }
 
-    .error-message {
-    color: #ff4444;
-    background-color: #ffebee;
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ffcdd2;
-    margin-bottom: 15px;
-    text-align: center;
-  }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
 
-  
-    .title {
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 30px;
-    }
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
-    .login-box {
-      background: #fff;
-      padding: 40px;
-      border-radius: 15px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-      width: 400px;
-      margin: auto;
-    }
+        .login-container {
+            width: 90%;
+            max-width: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            text-align: center;
+        }
 
-    .login-box label {
-      display: block;
-      text-align: left;
-      margin: 10px 0 5px;
-      font-size: 16px;
-    }
+        .login-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 32px;
+        }
 
-    .login-box input[type="text"],
-    .login-box input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #aaa;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
+        .login-header h1 {
+            font-weight: 500;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
 
-    .btn {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background-color 0.3s;
-    }
+        .login-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
 
-    .btn-login {
-      background-color: #d9f2dd;
-      border: 1px solid #4CAF50;
-      color: #333;
-    }
+        .login-content {
+            padding: 32px;
+        }
 
-    .btn-login:hover {
-      background-color: #c8e6c9;
-    }
+        .error-message {
+            color: var(--danger-color);
+            background-color: #ffebee;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ffcdd2;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
 
-    .btn-back {
-      background-color: #e1efff;
-      border: 1px solid #3399ff;
-      color: #000;
-    }
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
 
-    .btn-back:hover {
-      background-color: #d0e7ff;
-    }
-  </style>
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+        }
+
+        .login-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            border: none;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #f0f2f5;
+        }
+
+        .btn i {
+            margin-right: 10px;
+            font-size: 16px;
+        }
+
+        @media (min-width: 600px) {
+            .login-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
+
+            .btn {
+                width: auto;
+                min-width: 180px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="title">Вход админа</div>
-    <div class="login-box">
-    {% if error %}
-    <div class="error-message" style="color: red; margin-bottom: 15px;">
-      {{ error }}
-    </div>
-    {% endif %}
-    <form method="POST" action="/admin_login">
-        <label for="login">Логин</label>
-        <input type="text" id="login" name="login" placeholder="Введите логин" required>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Вход администратора</h1>
+            <p>Введите логин и пароль для входа в панель управления</p>
+        </div>
 
-        <label for="password">Пароль</label>
-        <input type="password" id="password" name="password" placeholder="Введите пароль" required>
+        <div class="login-content">
+            {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+            {% endif %}
 
-        <button type="submit" class="btn btn-login">Войти</button>
-    </form>
-    <form method="GET" action="/login">
-        <button type="submit" class="btn btn-back">Вернуться</button>
-    </form>
+            <form method="POST" action="/admin_login">
+                <div class="form-group">
+                    <label for="login">Логин</label>
+                    <input type="text" id="login" name="login" class="form-control" placeholder="Введите логин" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Введите пароль" required>
+                </div>
+
+                <div class="login-buttons">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-lock"></i> Войти
+                    </button>
+                    <button type="button" onclick="window.history.back()" class="btn btn-secondary">
+                      <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-  </div>
 </body>
 </html>

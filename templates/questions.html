@@ -133,9 +133,29 @@
             color: var(--primary-color);
         }
         
+        .question-text {
+            flex-grow: 1;
+        }
+        
+        .question-answer {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+        
         @media (max-width: 600px) {
             .action-buttons {
                 flex-direction: column;
+            }
+            
+            .question-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .question-actions {
+                margin-top: 8px;
+                align-self: flex-end;
             }
         }
     </style>
@@ -157,42 +177,31 @@
                 </a>
             </div>
             
-            <div class="questions-list">
-                
-        <div class="question-item">
-            <div class="question-text">
-                <strong>Вопрос #1:</strong> Какая столица Франции?
-            </div>
-            <div class="question-actions">
-                <i class="fas fa-edit action-icon" title="Редактировать"></i>
-                <i class="fas fa-trash action-icon" title="Удалить"></i>
-            </div>
-        </div>
-        
-
-        <div class="question-item">
-            <div class="question-text">
-                <strong>Вопрос #2:</strong> Сколько планет в Солнечной системе?
-            </div>
-            <div class="question-actions">
-                <i class="fas fa-edit action-icon" title="Редактировать"></i>
-                <i class="fas fa-trash action-icon" title="Удалить"></i>
-            </div>
-        </div>
-        
-
-        <div class="question-item">
-            <div class="question-text">
-                <strong>Вопрос #3:</strong> Кто написал "Войну и мир"?
-            </div>
-            <div class="question-actions">
-                <i class="fas fa-edit action-icon" title="Редактировать"></i>
-                <i class="fas fa-trash action-icon" title="Удалить"></i>
-            </div>
-        </div>
-        
+            <div class="questions-list" id="questions-list">
+                <!-- Вопросы будут вставлены сюда динамически -->
+                {{ questions | safe }}
             </div>
         </div>
     </div>
+
+    <script>
+        // Дополнительный JavaScript для обработки действий
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            document.querySelectorAll('.action-icon.fa-trash').forEach(icon => {
+                icon.addEventListener('click', function() {
+                    if(confirm('Вы уверены, что хотите удалить этот вопрос?')) {
+                        const questionId = this.closest('.question-item').dataset.id;
+                        fetch(`/delete-question/${questionId}`, { method: 'DELETE' })
+                            .then(response => {
+                                if(response.ok) {
+                                    window.location.reload();
+                                }
+                            });
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

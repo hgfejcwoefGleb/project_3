@@ -1,3 +1,4 @@
+#пропустить кнопка не работает
 from fastapi import FastAPI, Request, Form, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -7,6 +8,9 @@ import random
 from typing import Optional
 from starlette.middleware.sessions import SessionMiddleware
 import secrets
+import logging
+logging.basicConfig(level=logging.DEBUG)
+from fastapi.responses import PlainTextResponse
 from utils import *
 
 app = FastAPI()
@@ -28,6 +32,14 @@ class LoginData(BaseModel):
 USERS = {
     "admin": {"password": "admin123", "role": "admin"}
 }
+#Перехват всех ошибок
+@app.middleware("http")
+async def catch_exceptions(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        logging.exception("Unhandled exception:")
+        return PlainTextResponse("Internal error:\n" + str(e), status_code=500)
 
 # Функция для проверки аутентификации
 def get_current_user(request: Request):
@@ -39,23 +51,22 @@ def get_current_user(request: Request):
 # Главная страница с выбором типа входа
 @app.get("/", response_class=HTMLResponse)
 async def login_choice(request: Request):
-    return templates.TemplateResponse("sign_in.html", {"request": request})
+    return templates.TemplateResponse("login_choice.html", {"request": request})
 
 @app.get("/login", response_class=HTMLResponse)
 async def login_choice(request: Request):
-    return templates.TemplateResponse("sign_in.html", {"request": request})
+    return templates.TemplateResponse("login_choice.html", {"request": request})
 
 # Обработка выбора типа входа
 @app.post("/login")
-async def handle_login_choice(request: Request, guest: Optional[str] = Form(None), admin: Optional[str] = Form(None)):
+async def handle_login_choice(request: Request, guest: Optional[str] = Form(None), admin: Optional[str] = Form(None), guest_name: str = Form(...)):
     if guest:
-        request.session["user"] = {"role": "guest"}
+        request.session["user"] = {"role": "guest", "login": guest_name}
         return RedirectResponse(url="/game", status_code=303)
     elif admin:
         return RedirectResponse(url="/admin_login", status_code=303)
     return RedirectResponse(url="/", status_code=303)
 
-#тут
 # Страница входа для админа
 @app.get("/admin_login", response_class=HTMLResponse)
 async def admin_login_page(request: Request):
@@ -77,20 +88,17 @@ async def handle_admin_login(request: Request, login: str = Form(...), password:
 async def admin_main_window_page(request: Request):
     return templates.TemplateResponse("admin_main_window.html", {"request": request})
 
-#Страница вопросов
 @app.get("/questions", response_class=HTMLResponse)
 async def questions_page(request: Request):
     questions = read_questions('questions.txt')
     questions_html = generate_question_html(questions)
-
-    with open('templates/questions.html', 'r', encoding='utf-8') as file:
-        template = file.read()
-
-    final_html = template.replace("{{questions}}", questions_html)
-
-    with open('templates/questions.html', 'w', encoding='utf-8') as file:
-        file.write(final_html)
-    return templates.TemplateResponse("questions.html", {"request": request})
+    return templates.TemplateResponse(
+        "questions.html", 
+        {
+            "request": request,
+            "questions": questions_html
+        }
+    )
 
 #Страница рейтинга
 @app.get("/progress", response_class=HTMLResponse)
@@ -115,6 +123,7 @@ async def show_rating(request: Request):
 async def rules_page(request: Request):
     return templates.TemplateResponse("rules.html", {"request": request})
 
+
 #Страница добавления вопроса
 @app.get("/add-question", response_class=HTMLResponse)
 async def add_question_page(request: Request):
@@ -129,7 +138,9 @@ async def save_question(
     answer_time: int = Form(...)
 ):
     # Сохраняем вопрос в файл
+    options.append(correct_answer)
     question_number = save_question_to_file(question, options, correct_answer)
+    question_number = save_question_to_file(question, options, correct_answer, filename="questions.txt")
 
     # Возвращаем страницу с подтверждением
     return templates.TemplateResponse("add-question.html", {
@@ -138,53 +149,107 @@ async def save_question(
     })
 # Игра "Угадай число"
 @app.get("/game", response_class=HTMLResponse)
-async def game_page(request: Request):
-    user = request.session.get("user")
+def show_game(request: Request):
+    user = get_current_user(request)
     if not user:
-        return RedirectResponse(url="/", status_code=303)
-    
-    if "secret" not in request.session:
-        request.session["secret"] = random.randint(1, 100)
-        request.session["attempts"] = 10
-    
+        # Вместо HTTPException — делаем редирект
+        return RedirectResponse(url="/login", status_code=307)
+    questions = read_questions("tasks.txt")
+
+    if "question_order" not in request.session:
+        order = list(range(len(questions)))
+        random.shuffle(order)
+        request.session["question_order"] = order
+        request.session["game_index"] = 0
+        request.session["score"] = 0
+
+    order = request.session["question_order"]
+    idx = request.session["game_index"]
+
+    if idx >= len(order):
+        add_user(request.session["user"]["login"], points=request.session["score"])
+        return RedirectResponse("/result", status_code=303)
+
+    q_idx = order[idx]  # Получаем реальный индекс вопроса из перемешанного списка
+    current = questions[q_idx]
     return templates.TemplateResponse("game.html", {
         "request": request,
-        "message": "Угадай число от 1 до 100!",
-        "attempts": request.session["attempts"],
-        "is_admin": user.get("role") == "admin"
+        "question_text": current["text"],
+        "answers": current["options"],
+        "hint_text": "Подсказка: подумайте логически :)",
+        "current_q_idx": q_idx  # Добавляем реальный индекс вопроса в контекст
     })
 
-# Обработка попытки угадать число
-@app.post("/guess")
-async def handle_guess(request: Request, guess: int = Form(...)):
-    user = request.session.get("user")
-    if not user:
-        return RedirectResponse(url="/", status_code=303)
+
+# Обработка ответа
+@app.post("/submit")
+async def submit_answer(request: Request, selected_answer: str = Form(...)):
+    questions = read_questions("tasks.txt")
+    order = request.session.get("question_order", [])
+    idx = request.session.get("game_index", 0)
     
-    secret = request.session["secret"]
-    request.session["attempts"] -= 1
-    attempts = request.session["attempts"]
+    # Проверка, что вопросы не закончились
+    if idx >= len(order):
+        add_user(request.session["user"]["login"], points=request.session["score"])
+        return RedirectResponse("/result", status_code=303)
     
-    if guess == secret:
-        message = f"🎉 Победа! Это число {secret}!"
-        request.session.pop("secret", None)
-        request.session.pop("attempts", None)
-    elif attempts == 0:
-        message = f"💥 Проигрыш! Число было: {secret}."
-        request.session.pop("secret", None)
-        request.session.pop("attempts", None)
-    elif guess < secret:
-        message = "⬆️ Больше!"
-    else:
-        message = "⬇️ Меньше!"
+    q_idx = order[idx]  # Получаем реальный индекс вопроса
+    current_question = questions[q_idx]
     
-    return templates.TemplateResponse("game.html", {
+    if selected_answer.strip().lower() == current_question["correct_answer"].strip().lower():
+        request.session["score"] = request.session.get("score", 0) + 1
+    
+    # Переход к следующему вопросу
+    request.session["game_index"] = idx + 1
+    
+    # Проверка, был ли это последний вопрос
+    if request.session["game_index"] >= len(order):
+        return RedirectResponse("/result", status_code=303)
+    
+    return RedirectResponse("/game", status_code=303)
+
+# Пропуск вопроса
+@app.post("/skip")
+def skip_question(request: Request):
+    order = request.session.get("question_order", [])
+    current_idx = request.session.get("game_index", 0)
+    
+    # Увеличиваем индекс только если вопросы еще есть
+    if current_idx < len(order) - 1:
+        request.session["game_index"] = current_idx + 1
+    
+    # Если это был последний вопрос - переходим к результатам
+    if request.session["game_index"] >= len(order) - 1:
+        add_user(request.session["user"]["login"], points=request.session["score"])
+        return RedirectResponse("/result", status_code=303)
+    
+    return RedirectResponse("/game", status_code=303)
+
+#Завершение игры
+@app.post("/end_game")
+def end_game(request: Request):
+    add_user(request.session["user"]["login"], points=request.session["score"])
+    return RedirectResponse("/result", status_code=303)
+
+#Страница результата
+@app.get("/result", response_class=HTMLResponse)
+def show_result(request: Request):
+    score = request.session.get("score", 0)
+    total = len(read_questions("tasks.txt"))
+    return templates.TemplateResponse("result_offline.html", {
         "request": request,
-        "message": message,
-        "attempts": attempts,
-        "is_admin": user.get("role") == "admin",
-        "game_over": guess == secret or attempts == 0
+        "score": score,
+        "total": total
     })
+
+#Перезапуск игры
+@app.get("/play_again")
+def play_again(request: Request):
+    request.session.pop("question_order", None)
+    request.session["game_index"] = 0
+    request.session["score"] = 0
+    return RedirectResponse("/game", status_code=303)
+
 
 # Выход из системы
 @app.get("/logout")

@@ -1,29 +1,91 @@
-def read_questions(filename):
-    with open(filename, 'r', encoding='utf-8') as file:
-        return [line.strip() for line in file if line.strip()]
+import re
 
-def generate_question_html(questions):
-    html_items = []
-    for idx, question in enumerate(questions, start=1):
-        item = f"""
-        <div class="question-item">
+def read_questions(file_path: str) -> list:
+    """Чтение вопросов из файла нового формата"""
+    questions = []
+    current_question = None
+
+    with open(file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            line = line.strip()
+
+            # Пропускаем пустые строки
+            if not line:
+                continue
+
+            # Проверяем, начинается ли строка с номера вопроса: "1.", "2." и т.д.
+            question_match = re.match(r'^(\d+)\.\s*(.+)$', line)
+            if question_match:
+                if current_question:
+                    questions.append(current_question)
+
+                # Начинаем новый вопрос
+                current_question = {
+                    "text": question_match.group(2),
+                    "options": [],
+                    "correct_answer": None
+                }
+
+            # Варианты ответа: a), b), c)
+            elif line.startswith(("a)", "b)", "c)")):
+                if current_question is not None:
+                    current_question["options"].append(line)
+
+            # Правильный ответ
+            elif line.startswith("Правильный ответ:"):
+                if current_question is not None:
+                    current_question["correct_answer"] = line.split(": ", 1)[1]
+
+    # Добавляем последний вопрос
+    if current_question:
+        questions.append(current_question)
+
+    return questions
+
+def read_questions_(filename):
+    questions = []
+    with open(filename, 'r', encoding='utf-8') as file:
+        lines = file.read().split('\n\n')  # Разделяем по пустым строкам
+        
+    for block in lines:
+        if not block.strip():
+            continue
+            
+        parts = block.split('\n')
+        if len(parts) < 4:  # Как минимум: вопрос, 2 варианта, правильный ответ
+            continue
+            
+        question = {
+            "text": parts[0].strip(),
+            "options": [opt.strip() for opt in parts[1:-1] if opt.strip()],
+            "correct_answer": parts[-1].replace("Правильный ответ:", "").strip()
+        }
+        questions.append(question)
+    print(questions)
+    return questions
+
+def generate_question_html(questions: list) -> str:
+    """Генерация HTML для списка вопросов"""
+    html = []
+    for i, question in enumerate(questions, 1):
+        html.append(f"""
+        <div class="question-item" data-id="{i}">
             <div class="question-text">
-                <strong>Вопрос #{idx}:</strong> {question}
+                <strong>{question['text']}</strong>
+                <div class="question-answer">{question['correct_answer']}</div>
             </div>
             <div class="question-actions">
                 <i class="fas fa-edit action-icon" title="Редактировать"></i>
                 <i class="fas fa-trash action-icon" title="Удалить"></i>
             </div>
         </div>
-        """
-        html_items.append(item)
-    return "\n".join(html_items)
+        """)
+    return "\n".join(html)
 
 def save_question_to_file(question: str, options: list, correct_answer: str, filename: str = "tasks.txt"):
     """
     Сохраняет вопрос и варианты ответов в файл в заданном формате.
     """
-    print(options)
     question_number = 1
     with open(filename, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -34,11 +96,12 @@ def save_question_to_file(question: str, options: list, correct_answer: str, fil
     # Назначаем буквы вариантам
     for idx, option in enumerate(options):
         question_block += f"{chr(97 + idx)}) {option}\n"
-
-    question_block += f"Правильный ответ: {correct_answer}\n\n"
+        last_let = chr(97 + idx)
+    question_block += f"Правильный ответ: {last_let}) {correct_answer}\n\n"
     # Записываем в файл
     with open(filename, 'a', encoding='utf-8') as file:
         file.write(question_block)
+    
 
     return question_number
 
@@ -76,3 +139,7 @@ def read_ratings(file_path: str = "progress.txt"):
     
     # Сортируем по убыванию очков
     return sorted(ratings, key=lambda x: x["score"], reverse=True)
+
+def add_user(login: str, points: int = 0, filename: str = "progress.txt"):
+    with open(filename, 'a') as file:
+        file.write(f"{login}:{points}\n")
